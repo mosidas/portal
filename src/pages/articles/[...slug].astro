@@ -1,0 +1,179 @@
+---
+import { getCollection } from 'astro:content';
+import TagBadge from '../../components/articles/TagBadge.astro';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles
+    .filter(article => !article.data.draft)
+    .map(article => ({
+      params: { slug: article.slug },
+      props: { article },
+    }));
+}
+
+const { article } = Astro.props;
+const { title, date, tags, description } = article.data;
+const { Content } = await article.render();
+
+const formattedDate = new Intl.DateTimeFormat('ja-JP', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}).format(date);
+
+// SEO用のページタイトル
+const pageTitle = `${title} | gobbledygook`;
+---
+
+<Layout>
+  <Fragment slot="head">
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content="article" />
+    <meta property="article:published_time" content={date.toISOString()} />
+    {tags.map(tag => (
+      <meta property="article:tag" content={tag} />
+    ))}
+  </Fragment>
+
+  <div class="max-w-4xl mx-auto">
+    <!-- パンくずナビ -->
+    <nav class="mb-6" aria-label="パンくずナビゲーション">
+      <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <li>
+          <a href="/" class="hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            ホーム
+          </a>
+        </li>
+        <li>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </li>
+        <li>
+          <a href="/articles" class="hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            記事一覧
+          </a>
+        </li>
+        <li>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </li>
+        <li class="text-gray-700 dark:text-gray-300" aria-current="page">
+          {title}
+        </li>
+      </ol>
+    </nav>
+
+    <!-- 記事ヘッダー -->
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight">
+        {title}
+      </h1>
+
+      <div class="flex flex-wrap items-center gap-4 mb-4">
+        <time
+          datetime={date.toISOString()}
+          class="text-gray-500 dark:text-gray-400 font-medium"
+        >
+          {formattedDate}
+        </time>
+
+        <div class="flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <TagBadge tag={tag} href={`/articles?tag=${encodeURIComponent(tag)}`} />
+          ))}
+        </div>
+      </div>
+
+      {description && (
+        <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+          {description}
+        </p>
+      )}
+    </header>
+
+    <!-- 記事本文 -->
+    <article class="prose prose-lg dark:prose-invert max-w-none">
+      <Content />
+    </article>
+
+    <!-- フッター -->
+    <footer class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <a
+          href="/articles"
+          class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          記事一覧に戻る
+        </a>
+      </div>
+    </footer>
+  </div>
+</Layout>
+
+<style>
+  /* Proseスタイルのカスタマイズ */
+  :global(.prose) {
+    color: rgb(55 65 81 / 1);
+  }
+
+  :global(.dark .prose) {
+    color: rgb(209 213 219 / 1);
+  }
+
+  :global(.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6) {
+    color: rgb(17 24 39 / 1);
+  }
+
+  :global(.dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6) {
+    color: rgb(243 244 246 / 1);
+  }
+
+  :global(.prose pre) {
+    background-color: rgb(249 250 251 / 1);
+    border: 1px solid rgb(229 231 235 / 1);
+  }
+
+  :global(.dark .prose pre) {
+    background-color: rgb(31 41 55 / 1);
+    border: 1px solid rgb(75 85 99 / 1);
+  }
+
+  :global(.prose code) {
+    background-color: rgb(249 250 251 / 1);
+    color: rgb(239 68 68 / 1);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+
+  :global(.dark .prose code) {
+    background-color: rgb(31 41 55 / 1);
+    color: rgb(248 113 113 / 1);
+  }
+
+  :global(.prose pre code) {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  :global(.prose blockquote) {
+    border-left-color: rgb(209 213 219 / 1);
+    color: rgb(107 114 128 / 1);
+  }
+
+  :global(.dark .prose blockquote) {
+    border-left-color: rgb(75 85 99 / 1);
+    color: rgb(156 163 175 / 1);
+  }
+</style>

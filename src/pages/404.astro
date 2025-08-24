@@ -1,0 +1,49 @@
+---
+import { Icon } from 'astro-icon/components';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <Fragment slot="head">
+    <title>404: Not Found | gobbledygook</title>
+    <meta name="description" content="お探しのページが見つかりませんでした。" />
+  </Fragment>
+
+  <div class="flex items-center justify-center min-h-[calc(100vh-14rem)]">
+    <div class="text-center">
+      <!-- アイコン -->
+      <div class="mb-8">
+        <Icon
+          name="iconoir--file-not-found"
+          class="large-icon"
+          aria-hidden="true"
+        />
+      </div>
+
+      <!-- エラーメッセージ -->
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        404: Not Found
+      </h1>
+
+      <!-- 説明文 -->
+      <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
+        ページが見つかりませんでした。
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* 高さ調整でより良い中央配置を実現 */
+  .min-h-\[calc\(100vh-14rem\)\] {
+    min-height: calc(100vh - 14rem);
+  }
+
+  /* アイコンサイズを確実に適用 */
+  .large-icon {
+    width: 10rem !important;
+    height: 10rem !important;
+    display: block;
+    margin: 0 auto;
+  }
+</style>

@@ -1,0 +1,64 @@
+---
+// 左サイドバーコンポーネント
+// メインナビゲーションメニューを提供
+
+// 現在のページパスを取得してアクティブ状態を判定
+const currentPath = Astro.url.pathname;
+const isArticlesActive = currentPath.includes('/articles');
+const isProjectsActive = currentPath.includes('/projects');
+
+// ナビゲーションアイテムのクラスを生成する関数
+const getNavItemClass = (isActive: boolean) => {
+  const baseClass = "block rounded-md px-3 py-2 text-sm font-medium transition-colors";
+  const activeClass = "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500";
+  const inactiveClass = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-gray-100";
+
+  return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
+};
+---
+
+<aside class="hidden md:flex md:w-60 shrink-0 border-r border-gray-200/60 dark:border-white/10" aria-label="左サイドメニュー">
+  <div class="w-full py-6 px-4">
+    <nav class="space-y-1" aria-label="メインナビゲーション">
+      <a
+        href="/articles"
+        class={getNavItemClass(isArticlesActive)}
+        aria-label="記事一覧へ"
+        aria-current={isArticlesActive ? 'page' : undefined}
+      >
+        <div class="flex items-center gap-3">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          Articles
+        </div>
+      </a>
+
+      <a
+        href="/projects"
+        class={getNavItemClass(isProjectsActive)}
+        aria-label="プロジェクト一覧へ"
+        aria-current={isProjectsActive ? 'page' : undefined}
+      >
+        <div class="flex items-center gap-3">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          Projects
+        </div>
+      </a>
+    </nav>
+
+    <!-- サイト情報 -->
+    <div class="mt-8 pt-6 border-t border-gray-200/60 dark:border-white/10">
+      <div class="text-xs text-gray-500 dark:text-gray-400 space-y-2">
+        <div>
+          <p class="leading-relaxed">学習記録とアウトプットの<br>個人的まとめ</p>
+        </div>
+        <div class="pt-2 text-gray-400 dark:text-gray-500">
+          <p>Built with Astro & Tailwind CSS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>

@@ -1,25 +1,219 @@
 ---
 import '../styles/global.css'
+import HeaderButtonGitHub from "../components/header/HeaderButtonGitHub.astro";
+import HeaderButtonRSS from "../components/header/HeaderButtonRSS.astro";
+import HeaderButtonThemeToggle from "../components/header/HeaderButtonThemeToggle.astro";
+import HeaderButtonTop from "../components/header/HeaderButtonTop.astro";
+import LeftSidebar from "../components/LeftSidebar.astro";
+import RightSidebar from "../components/RightSidebar.astro";
+import { Icon } from 'astro-icon/components';
 ---
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="ja" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>gobbledygook</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <slot name="head" />
+  </head>
+  <body class="min-h-dvh bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100" style="font-family: 'Noto Sans JP', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji';">
+    <div class="min-h-dvh flex flex-col">
+      <header class="h-14 flex items-center border-b border-gray-200/60 dark:border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
+        <div class="mx-auto w-full max-w-6xl px-4 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <HeaderButtonTop />
+            <a href="/" class="text-lg font-semibold tracking-tight">gobbledygook</a>
+          </div>
+          <nav class="flex items-center gap-1.5" aria-label="ヘッダーメニュー">
+            <HeaderButtonGitHub />
+            <HeaderButtonRSS />
+            <HeaderButtonThemeToggle />
+          </nav>
+        </div>
+      </header>
+
+      <div class="mx-auto w-full max-w-7xl md:flex md:items-stretch lg:items-stretch min-h-[calc(100vh-3.5rem)]">
+        <!-- 左サイドバー -->
+        <LeftSidebar />
+
+        <!-- メインコンテンツ -->
+        <main class="flex-1 min-w-0 px-4 py-6">
+          <div class="max-w-4xl lg:max-w-4xl md:max-w-2xl mx-auto">
+            <slot />
+          </div>
+        </main>
+
+        <!-- 右サイドバー -->
+        <RightSidebar />
+      </div>
+    </div>
+
+    <!-- スクロールトップボタン -->
+    <button
+      id="scroll-to-top"
+      class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible transform translate-y-4 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      aria-label="ページの先頭に戻る"
+      title="ページの先頭に戻る"
+    >
+      <Icon name="twemoji--top-arrow" class="w-8 h-8 mx-auto" aria-hidden="true" />
+    </button>
+  </body>
 </html>
 
+<script is:inline>
+  // FOUC（Flash of Unstyled Content）を防ぐため、即座にテーマを適用
+  (function() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  })();
+
+  // テーマ切替の処理
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // ボタンのaria-pressed属性を更新
+    updateThemeButton(isDark);
+  }
+
+  function updateThemeButton(isDark) {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.setAttribute('aria-pressed', isDark.toString());
+    }
+  }
+
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+
+    if (isDark) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      updateThemeButton(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      updateThemeButton(true);
+    }
+  }
+
+  // DOMContentLoadedを待ってからイベントリスナーを設定
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupThemeToggle);
+  } else {
+    setupThemeToggle();
+  }
+
+  function setupThemeToggle() {
+    // テーマを初期化
+    initTheme();
+
+    // ボタンのイベントリスナーを設定
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', toggleTheme);
+    }
+  }
+
+  // システムのテーマ設定変更を監視
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    // ユーザーが手動で設定していない場合のみシステム設定に従う
+    if (!localStorage.getItem('theme')) {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      updateThemeButton(e.matches);
+    }
+  });
+
+  // スクロールトップボタンの制御
+  function initScrollToTopButton() {
+    const scrollToTopButton = document.getElementById('scroll-to-top');
+    if (!scrollToTopButton) return;
+
+    // スクロール位置を監視してボタンの表示/非表示を切り替え
+    function toggleButtonVisibility() {
+      const scrollTopPx = window.pageYOffset || document.documentElement.scrollTop;
+      const shouldShow = scrollTopPx > 50;
+
+      if (shouldShow) {
+        scrollToTopButton.classList.remove('opacity-0', 'invisible', 'translate-y-4');
+        scrollToTopButton.classList.add('opacity-100', 'visible', 'translate-y-0');
+      } else {
+        scrollToTopButton.classList.add('opacity-0', 'invisible', 'translate-y-4');
+        scrollToTopButton.classList.remove('opacity-100', 'visible', 'translate-y-0');
+      }
+    }
+
+    // スクロールイベントにリスナーを追加（パフォーマンス向上のためthrottle）
+    let ticking = false;
+    function handleScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          toggleButtonVisibility();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    // スクロールトップ機能
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    // イベントリスナーを設定
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    scrollToTopButton.addEventListener('click', scrollToTop);
+
+    // 初期状態を設定
+    toggleButtonVisibility();
+  }
+
+  // DOMが読み込まれたらスクロールトップボタンを初期化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollToTopButton);
+  } else {
+    initScrollToTopButton();
+  }
+</script>
+
 <style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+  :global(.sr-only) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 </style>

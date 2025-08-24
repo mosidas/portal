@@ -1,0 +1,75 @@
+---
+import TagBadge from '../../components/articles/TagBadge.astro';
+import ProjectCard from '../../components/projects/ProjectCard.astro';
+import Layout from '../../layouts/Layout.astro';
+import {
+  getProjects,
+  getProjectTagCounts,
+  sortProjectsByDate
+} from '../../utils/projects';
+
+// プロジェクトを取得して日付順でソート
+const allProjects = getProjects();
+const sortedProjects = sortProjectsByDate(allProjects);
+
+// タグ一覧と件数を取得
+const tagCounts = getProjectTagCounts(allProjects);
+const sortedTags = Array.from(tagCounts.entries())
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10); // 最大10個のタグを表示
+
+// SEO用のページタイトル
+const pageTitle = 'プロジェクト一覧';
+const seoTitle = `${pageTitle} | gobbledygook`;
+---
+
+<Layout>
+  <Fragment slot="head">
+    <title>{seoTitle}</title>
+    <meta name="description" content="制作したプロジェクトやツール、ライブラリの一覧です。ゲーム開発からWebアプリケーション、CLIツールまで様々なプロジェクトを紹介しています。" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content="制作したプロジェクトやツール、ライブラリの一覧です。" />
+    <meta property="og:type" content="website" />
+  </Fragment>
+
+  <div class="max-w-6xl mx-auto">
+    <!-- ヘッダー -->
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        {pageTitle}
+      </h1>
+
+      <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
+        制作したプロジェクトやツール、ライブラリの一覧です。
+      </p>
+    </header>
+
+    <!-- タグ一覧 -->
+    {sortedTags.length > 0 && (
+      <div class="mb-8 bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+          使用技術・カテゴリ
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          {sortedTags.map(([tag, count]) => (
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+              #{tag}
+              <span class="ml-1 text-gray-800 dark:text-gray-200">({count})</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- プロジェクト一覧 -->
+    {sortedProjects.length > 0 && (
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {sortedProjects.map(project => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+    )}
+
+
+  </div>
+</Layout>
