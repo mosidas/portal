@@ -1,0 +1,24 @@
+{
+  "name": "portal-site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "biome lint src/",
+    "lint:fix": "biome lint --write src/",
+    "format": "biome format src/",
+    "format:fix": "biome format --write src/",
+    "check": "biome check src/",
+    "check:fix": "biome check --write src/",
+    "type-check": "astro check"
+  },
+  "dependencies": {
+    "astro": "^5.13.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.2"
+  }
+}
