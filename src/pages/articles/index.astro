@@ -1,0 +1,115 @@
+---
+import { getCollection } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+import ArticleCard from '../../components/articles/ArticleCard.astro';
+import Pagination from '../../components/articles/Pagination.astro';
+import Layout from '../../layouts/Layout.astro';
+
+// クエリパラメータを取得
+const url = new URL(Astro.request.url);
+const searchTerm = url.searchParams.get('search') || '';
+const tagFilter = url.searchParams.get('tag') || '';
+const currentPage = parseInt(url.searchParams.get('page') || '1');
+
+// 記事を取得（下書きを除外し、日付順でソート）
+const allArticles = (await getCollection('articles'))
+  .filter(article => !article.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// フィルタリング
+let filteredArticles = allArticles;
+
+if (searchTerm) {
+  filteredArticles = filteredArticles.filter(article =>
+    article.data.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    article.data.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    article.data.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+}
+
+if (tagFilter) {
+  filteredArticles = filteredArticles.filter(article =>
+    article.data.tags.includes(tagFilter)
+  );
+}
+
+// ページネーション
+const articlesPerPage = 20;
+const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+const startIndex = (currentPage - 1) * articlesPerPage;
+const endIndex = startIndex + articlesPerPage;
+const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
+
+// パンくずリスト用のタイトル
+let pageTitle = '記事一覧';
+if (tagFilter) {
+  pageTitle = `タグ「${tagFilter}」の記事`;
+}
+if (searchTerm) {
+  pageTitle = `「${searchTerm}」の検索結果`;
+}
+---
+
+<Layout>
+  <div class="max-w-6xl mx-auto">
+    <!-- ヘッダー -->
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        {pageTitle}
+      </h1>
+
+      {(searchTerm || tagFilter) && (
+        <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span>{filteredArticles.length}件の記事が見つかりました</span>
+          <a
+            href="/articles"
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
+          >
+            すべての記事を表示
+          </a>
+        </div>
+      )}
+    </header>
+
+        <!-- 記事が見つからない場合 -->
+    {filteredArticles.length === 0 && (
+      <div class="text-center py-12">
+        <div class="mb-4">
+          <Icon name="hugeicons--file-not-found" class="mx-auto w-16 h-16 text-gray-400 dark:text-gray-600" aria-hidden="true" />
+        </div>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          記事が見つかりませんでした
+        </h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">
+          {searchTerm ? `「${searchTerm}」に一致する記事がありません。` :
+           tagFilter ? `タグ「${tagFilter}」の記事がありません。` :
+           '記事がまだ投稿されていません。'}
+        </p>
+        <a
+          href="/articles"
+          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          すべての記事を見る
+        </a>
+      </div>
+    )}
+
+    <!-- 記事一覧 -->
+    {paginatedArticles.length > 0 && (
+      <>
+        <div class="grid grid-cols-1 gap-6 mb-8">
+          {paginatedArticles.map(article => (
+            <ArticleCard article={article} />
+          ))}
+        </div>
+
+        <!-- ページネーション -->
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl="/articles"
+        />
+      </>
+    )}
+  </div>
+</Layout>

@@ -1,0 +1,10 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props { href?: string }
+const { href = 'https://github.com/mosidas' } = Astro.props as Props
+---
+<a href={href} target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="inline-flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 dark:hover:bg-white/10">
+  <Icon name="mdi--github" fill="currentColor" aria-hidden="true" class="w-5 h-5"/>
+  <span class="sr-only">GitHub</span>
+</a>

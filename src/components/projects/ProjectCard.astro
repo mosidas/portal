@@ -1,0 +1,85 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { Project } from '../../types/project';
+import TagBadge from '../articles/TagBadge.astro';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { title, url, description, tags, createdDate, updatedDate, sourceCodeUrl } = project;
+
+const formatDate = (dateString: string) => {
+  return new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date(dateString));
+};
+---
+
+<article class="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200/70 dark:border-white/10 p-6 hover:border-gray-300 dark:hover:border-white/20 hover:shadow-sm transition-all">
+  <!-- 1段目: タイトル（アプリへのリンク） -->
+  <header class="mb-4">
+    <h2 class="text-xl font-semibold">
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400"
+      >
+        <span class="flex items-center gap-2">
+          {title}
+          <Icon name="akar-icons--link-out" class="w-4 h-4" aria-hidden="true" />
+        </span>
+      </a>
+    </h2>
+  </header>
+
+  <!-- 2段目: 作成日、更新日 -->
+  <div class="mb-3 flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+    {createdDate && (
+      <span class="flex items-center gap-1.5">
+        <Icon name="material-symbols--rocket-launch-outline-rounded" class="w-4 h-4" aria-hidden="true" />
+        <span>{formatDate(createdDate)}</span>
+      </span>
+    )}
+    {updatedDate && (
+      <span class="flex items-center gap-1.5">
+        <Icon name="radix-icons--update" class="w-4 h-4" aria-hidden="true" />
+        <span>{formatDate(updatedDate)}</span>
+      </span>
+    )}
+  </div>
+
+  <!-- 3段目: タグ -->
+  <div class="mb-4 flex flex-wrap gap-2">
+    {tags.map(tag => (
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200">
+        #{tag}
+      </span>
+    ))}
+  </div>
+
+  <!-- 4段目: 説明 -->
+  <p class="mb-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+    {description}
+  </p>
+
+  <!-- 5段目: ソースコード -->
+  {sourceCodeUrl && (
+    <footer class="pt-3 border-t border-gray-200 dark:border-gray-700">
+      <a
+        href={sourceCodeUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+        aria-label={`${title}のソースコードを見る（新しいタブ）`}
+      >
+        <Icon name="mdi--github" class="w-4 h-4 mr-1.5" aria-hidden="true" />
+        ソースコード
+      </a>
+    </footer>
+  )}
+</article>

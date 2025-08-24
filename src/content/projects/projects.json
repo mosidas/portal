@@ -1,0 +1,27 @@
+[
+  {
+    "title": "TPS Shooter",
+    "url": "https://tps-smoky.vercel.app/",
+    "description": "シンプルなTPSのゲーム(作成中)",
+    "tags": [
+      "Game",
+      "Threejs",
+      "Svelte"
+    ],
+    "createdDate": "2025-07-13",
+    "updatedDate": "2025-08-02",
+    "sourceCodeUrl": ""
+  },
+  {
+    "title": "ブログ",
+    "url": "https://mosidas.github.io/portal/",
+    "description": "このサイト",
+    "tags": [
+      "Web",
+      "Astro"
+    ],
+    "createdDate": "2025-08-24",
+    "updatedDate": "2025-08-24",
+    "sourceCodeUrl": "https://github.com/mosidas/portal"
+  }
+]
